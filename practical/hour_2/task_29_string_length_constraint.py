@@ -1,0 +1,30 @@
+"""
+PRACTICAL SOLUTION: Description Column String Length Specification (FLASK-H2-P14)
+====================================================
+ID: FLASK-H2-P14
+Curriculum Tier: Basic Application | Difficulty: Elementary
+Task:
+Define the `description` column on the Item model with a length of 1024 characters, non-nullable and unique.
+
+Explanation:
+Define db.Column(db.String(length=1024), nullable=False, unique=True).
+"""
+
+# Solution:
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+db = SQLAlchemy(app)
+
+class Item(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    description = db.Column(db.String(length=1024), nullable=False, unique=True)
+
+if __name__ == '__main__':
+    col = Item.__table__.columns['description']
+    assert col.type.length == 1024
+    assert col.nullable is False
+    assert col.unique is True
+    print("✓ Task 29 passed!")

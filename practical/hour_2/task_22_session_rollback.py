@@ -1,0 +1,42 @@
+"""
+PRACTICAL SOLUTION: Transaction Rollback on Error (FLASK-H2-P07)
+====================================================
+ID: FLASK-H2-P07
+Curriculum Tier: Basic Application | Difficulty: Elementary
+Task:
+Safely attempt to add an item to the session, handling exceptions by rolling back the transaction and returning False.
+
+Explanation:
+Wrap db.session.commit() in try/except and invoke db.session.rollback() on failure.
+"""
+
+# Solution:
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+db = SQLAlchemy(app)
+
+class Item(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(10), unique=True, nullable=False)
+
+def safe_add(name: str) -> bool:
+    with app.app_context():
+        db.create_all()
+        try:
+            item = Item(name=name)
+            db.session.add(item)
+            db.session.commit()
+            return True
+        except Exception:
+            db.session.rollback()
+            return False
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        assert safe_add("Unique1") is True
+        assert safe_add("Unique1") is False
+    print("✓ Task 22 passed!")
